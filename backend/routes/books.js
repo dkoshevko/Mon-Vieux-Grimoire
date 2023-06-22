@@ -16,13 +16,13 @@ router.put('/:id', auth, multer, booksCtrl.modifyBook);
 // Supprimer un livre
 router.delete('/:id', auth, booksCtrl.deleteBook);
 
-// Obtenir le livre avec la meilleure note
-router.get('/bestrating', booksCtrl.getBestRating);
-
 // Obtenir un livre spécifique
 router.get('/:id', booksCtrl.getOneBook);
 
 // Obtenir tous les livres
 router.get('/', booksCtrl.getAllBooks);
+
+// Obtenir le livre avec la meilleure note
+router.get('/bestrating', booksCtrl.getBestRating);
 
 module.exports = router;
