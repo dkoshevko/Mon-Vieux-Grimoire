@@ -109,15 +109,18 @@ exports.deleteBook = (req, res, next) => {
 
 // Obtenir les livres avec la meilleure note
 exports.getBestRating = (req, res, next) => {
-    // Rechercher tous les livres et les trier par note décroissante
-    Book.find().sort({ rating: -1 })
-        .then(books => {
+    Book.find()
+        .sort({ averageRating: -1 }) // Tri par ordre décroissant de la note moyenne
+        .limit(3) // Limite à 3 résultats
+        .then((books) => {
             res.status(200).json(books);
         })
-        .catch(error => {
+        .catch((error) => {
             res.status(500).json({ error });
         });
 };
+
+  
 
 // Obtenir un seul livre par son id
 exports.getOneBook = (req, res, next) => {
@@ -147,4 +150,37 @@ exports.getAllBooks = (req, res, next) => {
         .catch(error => {
             res.status(500).json({ error }); // Erreur si la recherche des livres échoue
         });
+};
+
+
+// Noter un livre
+exports.addRating = async (req, res, next) => {
+    const { userId, rating } = req.body;
+    const bookId = req.params.id;
+
+    try {
+        // Vérifier si l'utilisateur a déjà noté le livre
+        const book = await Book.findById(bookId);
+        const existingRating = book.ratings.find((rating) => rating.userId === userId);
+
+        if (existingRating) {
+        return res.status(400).json({ error: 'L\'utilisateur a déjà noté ce livre.' });
+        }
+
+        // Ajouter la nouvelle note à la liste des ratings
+        book.ratings.push({ userId, grade: rating });
+
+        // Recalculer la note moyenne
+        const totalRatings = book.ratings.length;
+        const sumRatings = book.ratings.reduce((sum, rating) => sum + rating.grade, 0);
+        book.averageRating = sumRatings / totalRatings;
+
+        // Sauvegarder les modifications du livre
+        await book.save();
+
+        // Renvoyer le livre mis à jour
+        res.status(200).json(book);
+    } catch (error) {
+        res.status(500).json({ error: 'Une erreur est survenue lors de la définition de la note.' });
+    }
 };
