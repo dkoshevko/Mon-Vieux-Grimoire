@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
 const multer = require('../middleware/multer-config');
+const limiter = require('express-rate-limit');
 
 // Import du controlleur
 const booksCtrl = require('../controllers/books');
@@ -13,7 +14,7 @@ const booksCtrl = require('../controllers/books');
 router.get('/', booksCtrl.getAllBooks);
 
 // Créer un livre
-router.post('/', auth, multer, booksCtrl.createBook);
+router.post('/', limiter, auth, multer, booksCtrl.createBook);
 
 // Obtenir le livre avec la meilleure note
 router.get('/bestrating', booksCtrl.getBestRating);
@@ -22,13 +23,13 @@ router.get('/bestrating', booksCtrl.getBestRating);
 router.get('/:id', booksCtrl.getOneBook);
 
 // Modifier un livre
-router.put('/:id', auth, multer, booksCtrl.modifyBook);
+router.put('/:id', limiter, auth, multer, booksCtrl.modifyBook);
 
 // Supprimer un livre
-router.delete('/:id', auth, booksCtrl.deleteBook);
+router.delete('/:id', limiter, auth, booksCtrl.deleteBook);
 
 // Noter un livre
-router.post('/:id/rating', auth, booksCtrl.addRating);
+router.post('/:id/rating', limiter, auth, booksCtrl.addRating);
 
 
 
